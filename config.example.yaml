@@ -1,0 +1,18 @@
+include:
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.go"
+  - "**/*.md"
+exclude:
+  - "node_modules/**"
+  - ".git/**"
+  - "vendor/**"
+  - "*.lock"
+allow:
+  - "©"
+  - "→"
+severity: error
+# ignore_comments: false
+# ignore_strings: false
+# allow_file_patterns:
+#   - "docs/**"

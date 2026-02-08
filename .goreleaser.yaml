@@ -1,0 +1,111 @@
+version: 2
+
+project_name: englint
+
+builds:
+  - id: englint
+    main: ./cmd/englint
+    binary: englint
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w -X main.Version={{ .Version }}
+
+archives:
+  - id: englint
+    ids:
+      - englint
+    formats:
+      - tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE
+      - README.md
+      - CHANGELOG.md
+      - config.example.yaml
+      - docs/englint.1
+      - completions/englint.bash
+      - completions/englint.zsh
+
+checksum:
+  name_template: "checksums.txt"
+
+sboms:
+  - id: default
+    artifacts: archive
+    disable: false
+
+signs:
+  - id: cosign
+    cmd: cosign
+    signature: "${artifact}.sigstore.json"
+    artifacts: checksum
+    args:
+      - sign-blob
+      - --bundle=${signature}
+      - ${artifact}
+      - --yes
+
+release:
+  prerelease: auto
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+brews:
+  - name: englint
+    ids:
+      - englint
+    homepage: "https://github.com/TT-AIXion/englint"
+    description: "CLI linter for detecting non-English text in source files"
+    license: "MIT"
+    url_template: "https://github.com/TT-AIXion/englint/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    directory: Formula
+    install: |
+      bin.install "englint"
+      man1.install "docs/englint.1"
+      bash_completion.install "completions/englint.bash" => "englint"
+      zsh_completion.install "completions/englint.zsh" => "_englint"
+    test: |
+      system "#{bin}/englint", "version"
+    repository:
+      owner: "{{ .Env.HOMEBREW_TAP_OWNER }}"
+      name: "{{ .Env.HOMEBREW_TAP_NAME }}"
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    skip_upload: "{{ if or (eq .Env.HOMEBREW_TAP_OWNER \"\") (eq .Env.HOMEBREW_TAP_NAME \"\") (eq .Env.HOMEBREW_TAP_TOKEN \"\") }}true{{ else }}auto{{ end }}"
+
+homebrew_casks:
+  - name: englint
+    ids:
+      - englint
+    binaries:
+      - englint
+    homepage: "https://github.com/TT-AIXion/englint"
+    description: "CLI linter for detecting non-English text in source files"
+    license: "MIT"
+    url:
+      template: "https://github.com/TT-AIXion/englint/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+      verified: "github.com/TT-AIXion/englint"
+    repository:
+      owner: "{{ .Env.HOMEBREW_TAP_OWNER }}"
+      name: "{{ .Env.HOMEBREW_TAP_NAME }}"
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    skip_upload: "{{ if or (eq .Env.HOMEBREW_TAP_OWNER \"\") (eq .Env.HOMEBREW_TAP_NAME \"\") (eq .Env.HOMEBREW_TAP_TOKEN \"\") }}true{{ else }}auto{{ end }}"
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/englint"]
+          end

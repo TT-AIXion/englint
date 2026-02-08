@@ -1,0 +1,59 @@
+.TH ENGLINT 1 "2026-02-08" "englint" "User Commands"
+.SH NAME
+englint \- linter for detecting non-English text in source files
+.SH SYNOPSIS
+.B englint
+.RI <command>
+.RI [ args... ]
+.SH DESCRIPTION
+.B englint
+scans source files and reports non-English characters based on configurable include,
+exclude, and allow rules.
+.SH COMMANDS
+.TP
+.B scan
+Scan paths for non-English text.
+.TP
+.B init
+Create a default .englint.yaml config file.
+.TP
+.B version
+Show version.
+.SH SCAN FLAGS
+.TP
+.B --config <path>
+Config file path (default: .englint.yaml).
+.TP
+.B --exclude <glob>
+Repeatable exclude glob.
+.TP
+.B --include <glob>
+Repeatable include glob.
+.TP
+.B --json
+Machine-readable JSON output.
+.TP
+.B --fix
+Auto-fix placeholder mode.
+.TP
+.B --severity <error|warning>
+Default severity level.
+.TP
+.B --no-color
+Disable color output.
+.TP
+.B --verbose
+Print all scanned and skipped files.
+.SH FILES
+.TP
+.I .englint.yaml
+Project configuration file.
+.SH EXIT STATUS
+.TP
+.B 0
+Success, no non-English text found.
+.TP
+.B 1
+Error or non-English text detected.
+.SH SEE ALSO
+README.md
